@@ -5738,7 +5738,6 @@ body {
   background-color: #f7f7f7;
   font-family: 'Lato', sans-serif; }
 
-
 .navbar {
   background-color: #ffffff;
   z-index: 9999; }
@@ -5769,10 +5768,12 @@ body {
       border-radius: 20px;
       padding-left: 40px; }
 
+
 .todo-feed-item {
   background-color: #ffffff;
+  border: 1px solid #d8d8d8;
   padding: 5px 10px 5px 10px;
-  border: 1px solid #d8d8d8; }
+  margin-bottom: 20px; }
   .todo-feed-item .todo-action button {
     height: 34px;
     width: 35px;
