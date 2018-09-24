@@ -1,0 +1,23 @@
+$todo-item-bg-color: #ffffff;
+
+.todo-feed-item {
+    background-color: $todo-item-bg-color;
+    padding: 5px 10px 5px 10px;
+    border: 1px solid #d8d8d8;
+
+    .todo-action {
+        button {
+            height: 34px;
+            width: 35px;
+            color: #838383;
+            border-radius: 20px;
+            border-color: #bbb;
+            margin-right: 10px;
+            margin-bottom: 10px;
+
+            i {
+                margin-left: -8px;
+            }
+        }
+    }
+}
