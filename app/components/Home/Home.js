@@ -11,6 +11,7 @@ class Home extends React.Component {
   constructor (props) {
     super(props);
     this.state = {
+      from: 0,
       showModal: false,
       todos: props.todos,
       todo: {
@@ -25,10 +26,12 @@ class Home extends React.Component {
     this.editTodoModal = this.editTodoModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.deleteTodo = this.deleteTodo.bind(this);
+    this.next = this.next.bind(this);
+    this.previous = this.previous.bind(this);
   }
 
   componentDidMount () {
-    this.props.dispatch(findTodos());
+    this.props.dispatch(findTodos(this.state.from));
   }
 
   addTodoModal () {
@@ -84,6 +87,24 @@ class Home extends React.Component {
     return _todos;
   }
 
+  next () {
+    let current = this.state.from + 10;
+    this.setState({
+      from:current
+    });
+    this.props.dispatch(findTodos(current));
+    window.scrollTo(0, 0);
+  }
+
+  previous () {
+    let current = this.state.from - 10;
+    this.setState({
+      from:current
+    });
+    this.props.dispatch(findTodos(current));
+    window.scrollTo(0, 0);
+  }
+
   render() {
     return (
       <div className="todo-app">
@@ -106,6 +127,10 @@ class Home extends React.Component {
                 this.renderTodos(this.props.todos.tasks) : 
                 ''
               }
+              <div className="btn-group pagination-btn" role="group">
+                <button type="button" className="btn btn-default" disabled={this.state.from === 0 ? true : false} onClick={this.previous.bind(this)}>previous</button>
+                <button type="button" className="btn btn-default" disabled={(this.state.from + 10) >= this.props.todos.total ? true : false} onClick={this.next.bind(this)}>next</button>
+              </div>
             </div>
           </div>
         </div>

@@ -5738,6 +5738,12 @@ body {
   background-color: #f7f7f7;
   font-family: 'Lato', sans-serif; }
 
+.todo-app .todo-feed-container .todo-feed .todo-feed-col .pagination-btn {
+  margin-bottom: 30px;
+  width: 100%; }
+  .todo-app .todo-feed-container .todo-feed .todo-feed-col .pagination-btn button {
+    width: 50%; }
+
 .navbar {
   background-color: #ffffff;
   z-index: 9999; }
@@ -5767,7 +5773,6 @@ body {
     .navbar .container .search-container input {
       border-radius: 20px;
       padding-left: 40px; }
-
 
 .todo-feed-item {
   background-color: #ffffff;

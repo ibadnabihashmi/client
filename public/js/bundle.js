@@ -8,29 +8,26 @@ exports.findTodos = findTodos;
 exports.addTodo = addTodo;
 exports.editTodo = editTodo;
 exports.deleteTodo = deleteTodo;
-function findTodos() {
+function findTodos(from) {
     return function (dispatch) {
-        return fetch('http://localhost:9001/tasks', {
+        return fetch('http://localhost:9001/tasks?from=' + from, {
             method: 'get',
             headers: { 'Content-Type': 'application/json' }
         }).then(function (response) {
             if (response.ok) {
                 response.json().then(function (json) {
                     dispatch({
-                        type: 'FETCH_TODOS_SUCCESS',
-                        todos: json.tasks
+                        type: 'FETCH_TODOS',
+                        todos: json.tasks,
+                        total: json.total
                     });
                 });
-            } else {
-                // return response.json().then((json) => {
-                // });
             }
         });
     };
 }
 
 function addTodo(todo) {
-    console.log(todo);
     return function (dispatch) {
         return fetch('http://localhost:9001/task/create', {
             method: 'post',
@@ -39,9 +36,12 @@ function addTodo(todo) {
         }).then(function (response) {
             if (response.ok) {
                 response.json().then(function (json) {
-                    console.log(json);
+                    dispatch({
+                        type: 'ADD_TODO',
+                        todos: json.task
+                    });
                 });
-            } else {}
+            }
         });
     };
 }
@@ -55,24 +55,28 @@ function editTodo(todo) {
         }).then(function (response) {
             if (response.ok) {
                 response.json().then(function (json) {
-                    console.log(json);
+                    dispatch({
+                        type: 'UPDATE_TODO',
+                        todos: json.task
+                    });
                 });
-            } else {}
+            }
         });
     };
 }
 
 function deleteTodo(id) {
-    return function (dipatch) {
+    return function (dispatch) {
         return fetch('http://localhost:9001/task/delete/' + id, {
             method: 'delete',
             headers: { 'Content-Type': 'application/json' }
         }).then(function (response) {
             if (response.ok) {
-                response.json().then(function (json) {
-                    console.log(json);
+                dispatch({
+                    type: 'DELETE_TODO',
+                    id: id
                 });
-            } else {}
+            }
         });
     };
 }
@@ -302,6 +306,7 @@ var Home = function (_get__$Component) {
     var _this = _possibleConstructorReturn(this, (Home.__proto__ || Object.getPrototypeOf(Home)).call(this, props));
 
     _this.state = {
+      from: 0,
       showModal: false,
       todos: props.todos,
       todo: {
@@ -316,13 +321,15 @@ var Home = function (_get__$Component) {
     _this.editTodoModal = _this.editTodoModal.bind(_this);
     _this.closeModal = _this.closeModal.bind(_this);
     _this.deleteTodo = _this.deleteTodo.bind(_this);
+    _this.next = _this.next.bind(_this);
+    _this.previous = _this.previous.bind(_this);
     return _this;
   }
 
   _createClass(Home, [{
     key: 'componentDidMount',
     value: function componentDidMount() {
-      this.props.dispatch(_get__('findTodos')());
+      this.props.dispatch(_get__('findTodos')(this.state.from));
     }
   }, {
     key: 'addTodoModal',
@@ -385,6 +392,26 @@ var Home = function (_get__$Component) {
       return _todos;
     }
   }, {
+    key: 'next',
+    value: function next() {
+      var current = this.state.from + 10;
+      this.setState({
+        from: current
+      });
+      this.props.dispatch(_get__('findTodos')(current));
+      window.scrollTo(0, 0);
+    }
+  }, {
+    key: 'previous',
+    value: function previous() {
+      var current = this.state.from - 10;
+      this.setState({
+        from: current
+      });
+      this.props.dispatch(_get__('findTodos')(current));
+      window.scrollTo(0, 0);
+    }
+  }, {
     key: 'render',
     value: function render() {
       var _Nav_Component = _get__('Nav');
@@ -411,7 +438,21 @@ var Home = function (_get__$Component) {
             _react2.default.createElement(
               'div',
               { className: 'todo-feed-col col-sm-8 col-md-8 col-lg-8 col-sm-offset-2 col-md-offset-2 col-lg-offset-2' },
-              this.props.todos.tasks.length ? this.renderTodos(this.props.todos.tasks) : ''
+              this.props.todos.tasks.length ? this.renderTodos(this.props.todos.tasks) : '',
+              _react2.default.createElement(
+                'div',
+                { className: 'btn-group pagination-btn', role: 'group' },
+                _react2.default.createElement(
+                  'button',
+                  { type: 'button', className: 'btn btn-default', disabled: this.state.from === 0 ? true : false, onClick: this.previous.bind(this) },
+                  'previous'
+                ),
+                _react2.default.createElement(
+                  'button',
+                  { type: 'button', className: 'btn btn-default', disabled: this.state.from + 10 >= this.props.todos.total ? true : false, onClick: this.next.bind(this) },
+                  'next'
+                )
+              )
             )
           )
         )
@@ -2061,7 +2102,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 exports.default = todos;
 var initialState = {
     tasks: [],
-    isLoaded: false
+    total: 0
 };
 
 function todos() {
@@ -2069,10 +2110,28 @@ function todos() {
     var action = arguments[1];
 
     switch (action.type) {
-        case 'FETCH_TODOS_SUCCESS':
+        case 'FETCH_TODOS':
             return Object.assign({}, state, {
-                tasks: action.todos
+                tasks: action.todos,
+                total: action.total
             });
+        case 'ADD_TODO':
+            state.tasks.unshift(action.todos);
+            return Object.assign({}, state);
+        case 'UPDATE_TODO':
+            state.tasks.forEach(function (task) {
+                if (task.id === action.todos.id) {
+                    task.title = action.todos.title;
+                    task.description = action.todos.description;
+                }
+            });
+            return Object.assign({}, state);
+        case 'DELETE_TODO':
+            var index = state.tasks.findIndex(function (item) {
+                return item.id === action.id;
+            });
+            state.tasks.splice(index, 1);
+            return Object.assign({}, state);
         default:
             return state;
     }

@@ -1,7 +1,7 @@
 {
-  "name": "react-boilerplate",
+  "name": "react-redux-todo",
   "version": "1.0.0",
-  "description": "react-boilerplate",
+  "description": "react-redux-todo",
   "scripts": {
     "build": "gulp build",
     "start": "gulp serve",

@@ -1,26 +1,23 @@
-export function findTodos() {
+export function findTodos(from) {
     return (dispatch) => {
-        return fetch(`http://localhost:9001/tasks`, {
+        return fetch(`http://localhost:9001/tasks?from=${from}`, {
             method: 'get',
             headers: { 'Content-Type': 'application/json' },
         }).then((response) => {
             if (response.ok) {
                 response.json().then((json) => {
                     dispatch({
-                        type: 'FETCH_TODOS_SUCCESS',
-                        todos: json.tasks
+                        type: 'FETCH_TODOS',
+                        todos: json.tasks,
+                        total: json.total
                     });
                 });
-            } else {
-                // return response.json().then((json) => {
-                // });
             }
         });
     }
 }
 
 export function addTodo (todo) {
-    console.log(todo);
     return (dispatch) => {
         return fetch(`http://localhost:9001/task/create`, {
             method: 'post',
@@ -29,10 +26,11 @@ export function addTodo (todo) {
         }).then((response) => {
             if (response.ok) {
                 response.json().then((json) => {
-                    console.log(json);
+                    dispatch({
+                        type: 'ADD_TODO',
+                        todos: json.task
+                    });
                 });
-            } else {
-
             }
         });
     }
@@ -46,28 +44,28 @@ export function editTodo (todo) {
             body: JSON.stringify(todo)
         }).then((response) => {
             if (response.ok) {
-                response.json().then((json) => {
-                    console.log(json);
+                response.json().then(json => {
+                    dispatch({
+                        type: 'UPDATE_TODO',
+                        todos: json.task
+                    });
                 });
-            } else {
-
             }
         });
     }
 }
 
 export function deleteTodo (id) {
-    return (dipatch) => {
+    return (dispatch) => {
         return fetch(`http://localhost:9001/task/delete/${id}`, {
             method: 'delete',
             headers: { 'Content-Type': 'application/json' },
         }).then((response) => {
             if (response.ok) {
-                response.json().then((json) => {
-                    console.log(json);
+                dispatch({
+                    type: 'DELETE_TODO',
+                    id: id
                 });
-            } else {
-
             }
         });
     }
