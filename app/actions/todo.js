@@ -1,6 +1,8 @@
-export function findTodos(from) {
+import { BASE_URL } from "../constants";
+
+export function findTodos(from, search) {
     return (dispatch) => {
-        return fetch(`http://localhost:9001/tasks?from=${from}`, {
+        return fetch(`${BASE_URL}/tasks?from=${from}&search=${search}`, {
             method: 'get',
             headers: { 'Content-Type': 'application/json' },
         }).then((response) => {
@@ -19,54 +21,29 @@ export function findTodos(from) {
 
 export function addTodo (todo) {
     return (dispatch) => {
-        return fetch(`http://localhost:9001/task/create`, {
+        return fetch(`${BASE_URL}/task/create`, {
             method: 'post',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(todo)
-        }).then((response) => {
-            if (response.ok) {
-                response.json().then((json) => {
-                    dispatch({
-                        type: 'ADD_TODO',
-                        todos: json.task
-                    });
-                });
-            }
-        });
+        })
     }
 }
 
 export function editTodo (todo) {
     return (dispatch) => {
-        return fetch(`http://localhost:9001/task/update/${todo.id}`, {
+        return fetch(`${BASE_URL}/task/update/${todo.id}`, {
             method: 'put',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(todo)
-        }).then((response) => {
-            if (response.ok) {
-                response.json().then(json => {
-                    dispatch({
-                        type: 'UPDATE_TODO',
-                        todos: json.task
-                    });
-                });
-            }
         });
     }
 }
 
 export function deleteTodo (id) {
     return (dispatch) => {
-        return fetch(`http://localhost:9001/task/delete/${id}`, {
+        return fetch(`${BASE_URL}/task/delete/${id}`, {
             method: 'delete',
             headers: { 'Content-Type': 'application/json' },
-        }).then((response) => {
-            if (response.ok) {
-                dispatch({
-                    type: 'DELETE_TODO',
-                    id: id
-                });
-            }
         });
     }
 }

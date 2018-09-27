@@ -1,6 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
+/**
+ * @author Syed Aibad Hashmi
+ * @description Housing component forn Todo item
+ */
 export class Todo extends React.Component {
 
     constructor (props) {

@@ -1,11 +1,19 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Messages from '../Partials/Messages/Messages';
 import { Todo } from '../Todo/Todo';
 import { Nav } from '../Nav/Nav';
 import { TodoModal } from '../TodoModal/TodoModal';
 import { findTodos, addTodo, editTodo, deleteTodo } from '../../actions/todo';
+import { onTodoAdd, onEditTodo, onDeleteTodo } from '../../actions/socket-todo';
+import { SOCKET_BASE_URL } from '../../constants';
+import openSocket from 'socket.io-client';
+const socket = openSocket(SOCKET_BASE_URL);
 
+
+/**
+ * @description Main Todo Feed Component
+ * @author Syed Aibad Hashmi
+ */
 class Home extends React.Component {
 
   constructor (props) {
@@ -28,12 +36,30 @@ class Home extends React.Component {
     this.deleteTodo = this.deleteTodo.bind(this);
     this.next = this.next.bind(this);
     this.previous = this.previous.bind(this);
+    this.findTodo = this.findTodo.bind(this);
+
   }
 
+  /**
+   * @description React component lifecycle event
+   * housing socket events
+   */
   componentDidMount () {
-    this.props.dispatch(findTodos(this.state.from));
+    this.props.dispatch(findTodos(this.state.from, ''));
+    socket.on('todo-add', (data) => {
+      this.props.dispatch(onTodoAdd(data));
+    });
+    socket.on('todo-update', (data) => {
+      this.props.dispatch(onEditTodo(data));
+    });
+    socket.on('todo-delete', (data) => {
+      this.props.dispatch(onDeleteTodo(data));
+    });
   }
 
+  /**
+   * @description Opens Add Todo Modal
+   */
   addTodoModal () {
     const todo = {
       id: '',
@@ -46,6 +72,9 @@ class Home extends React.Component {
     });
   }
 
+  /**
+   * @description Closes Modal
+   */
   closeModal () {
     this.setState({
       showModal: false
@@ -58,6 +87,9 @@ class Home extends React.Component {
     } else {
       this.props.dispatch(addTodo(this.state.todo));
     }
+    this.setState({
+      showModal: false
+    });
   }
 
   editTodoModal (todo) {
@@ -71,44 +103,64 @@ class Home extends React.Component {
     this.props.dispatch(deleteTodo(id));
   }
 
+  /**
+   * @description Returns list of todos to be rendered
+   * @param todos 
+   */
   renderTodos (todos) {
     const _todos = [];
+    let counter = 0;
     todos.forEach((todo) => {
       _todos.push(
         <Todo 
           editTodoModal={this.editTodoModal} 
           id={todo.id} title={todo.title} 
           description={todo.description} 
-          key={todo.id}
+          key={counter}
           deleteTodo={this.deleteTodo}>
         </Todo>
-      )
+      );
+      counter++;
     });
     return _todos;
   }
 
+  /**
+   * @description Go to Next Page
+   */
   next () {
     let current = this.state.from + 10;
     this.setState({
       from:current
     });
-    this.props.dispatch(findTodos(current));
+    this.props.dispatch(findTodos(current, ''));
     window.scrollTo(0, 0);
   }
 
+  /**
+   * @description Go to Previous Page
+   */
   previous () {
     let current = this.state.from - 10;
     this.setState({
       from:current
     });
-    this.props.dispatch(findTodos(current));
+    this.props.dispatch(findTodos(current, ''));
     window.scrollTo(0, 0);
+  }
+
+  /**
+   * @description Searches the Todos for given text
+   * @param value 
+   */
+  findTodo (value) {
+    this.props.dispatch(findTodos(this.state.from, value));
   }
 
   render() {
     return (
       <div className="todo-app">
-        <Nav addTodoModal={this.addTodoModal}></Nav>
+        <Nav findTodo={this.findTodo} addTodoModal={this.addTodoModal}></Nav>
         {
           this.state.showModal ? 
           <TodoModal 
@@ -119,7 +171,6 @@ class Home extends React.Component {
           ''
         }
         <div className="todo-feed-container container">
-          <Messages messages={this.props.messages} />
           <div className="row todo-feed">
             <div className="todo-feed-col col-sm-8 col-md-8 col-lg-8 col-sm-offset-2 col-md-offset-2 col-lg-offset-2">
               {
@@ -141,7 +192,6 @@ class Home extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    messages: state.messages,
     todos: state.todos
   };
 };

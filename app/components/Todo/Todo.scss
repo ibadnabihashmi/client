@@ -6,6 +6,18 @@ $todo-item-bg-color: #ffffff;
     padding: 5px 10px 5px 10px;
     margin-bottom: 20px;
 
+    h3 {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+
+    p {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+
     .todo-action {
         button {
             height: 34px;
