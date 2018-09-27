@@ -4,11 +4,8 @@
   "description": "react-redux-todo",
   "scripts": {
     "build": "gulp build",
-    "start": "gulp serve",
-    "test": "mocha test/client --recursive --compilers js:babel-register",
-    "lint": "gulp lint",
-    "lint:fix": "gulp lint-fix",
-    "lint:scss": "gulp scss-lint"
+    "start": "gulp",
+    "test": "mocha test/client --recursive --compilers js:babel-register"
   },
   "dependencies": {
     "async": "^2.2.0",
